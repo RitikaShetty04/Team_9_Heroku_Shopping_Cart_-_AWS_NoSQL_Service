@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Amazon Fresh SignUp</title>
+<title>TheBookShelf</title>
 <script
 	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
 <link rel="stylesheet"
@@ -11,6 +11,8 @@
 	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 <script
 	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+	<script src="angularjs/angular.ng-modules.js"></script>
+	 <script src="angularjs/customerController.js"></script>
 <style>
 #panel {
 	background-color: #f2f2f2;
@@ -23,7 +25,13 @@
 <script type="text/javascript">
 	var app = angular.module('myApp', []);
 	app.controller('Controller', function($scope, $http) {
-
+		$scope.proceed=true;
+		$scope.place=false;
+		$scope.order_placed=false;
+		$scope.message="";
+		
+		
+		
 		$scope.viewCart = function() {
 			$http({
 				method : "GET",
@@ -34,7 +42,13 @@
 				$scope.book_author=data.product_details.book_author;
 				$scope.book_cost=data.product_details.book_cost;
 				$scope.book_quantity=1; */
-				$scope.product_details = data.product_details;
+				if(data.status==200){
+					$scope.product_details = data.product_details;
+					console.log(JSON.stringify($scope.product_details));
+				}else
+			{
+				$scope.status="Your Cart is empty";
+			}
 				//  $scope.quantity=data.product_details.value.quantity;
 
 			})
@@ -66,93 +80,100 @@
 				}
 			}).success(function(data){
 				console.log("removed item from cart");
+				$scope.viewCart();
+				
 			})
 			
 		}
+		
+		$scope.checkout = function(product_details){
+	console.log("Length:" +product_details.length);
+	console.log("Checkout: "+JSON.stringify(product_details[0].value.customer_id));
+	$scope.customer_id=	product_details[0].value.customer_id;
+	console.log("Customer ID:" +$scope.customer_id);
+	$http({
+				method : "POST",
+				url : '/checkout',
+				data : {
+					"customer_id" : $scope.customer_id,
+					"product_details":product_details
+				}
+			}).success(function(data){
+				$scope.proceed=false;
+				$scope.place=true;
+				$scope.customer=data.credit_card_details;
+				$scope.total=data.total;
+				$scope.product_details=data.product_details;
+				console.log("product_details"+data.product_details);
+				console.log("checkout success" +$scope.product_details );
+			})
+			
+		}
+		
+		$scope.confirm = function(product_details){
+			console.log("confirm: "+JSON.stringify(product_details[0].value.customer_id));
+			$scope.customer_id=	JSON.stringify(product_details[0].value.customer_id);
+			console.log("Customer ID:" +$scope.customer_id);
+			$http({
+						method : "POST",
+						url : '/confirm',
+						data : {
+							"product_details" : product_details,
+							"total": $scope.total
+						}
+					}).success(function(data){
+						$scope.proceed=false;
+						$scope.place=false;
+						$scope.order_placed=true;
+						$scope.message=data.msg;
+						console.log("checkout success" +JSON.stringify($scope.message) );
+					})
+					
+				}
+		
+		$scope.cancel = function(product_details){
+			$scope.proceed=false;
+			$scope.place=false;
+			$scope.order_placed=true;
+			$scope.message="Your order has been cancelled, you can still view the items in your cart";
+					
+				}
 
 	})
 </script>
 </head>
-<body ng-app="myApp" ng-controller="Controller" ng-init="viewCart()">
-	<nav class="navbar navbar-default navbar-fixed-top"
-		style="background-color: #484848; padding: 10px">
-		<div class="row">
-			<div class="col-sm-11">
-				<div class="container-fluid" style="color: white">
-					<a href=""><img
-						src="http://intertwingly.net/projects/AWDwR3/data/images/logo.png?1324774743"
-						alt="Amazon logo"> </a> Already an The book Shelf customer? <a
-						href="#" style="color: white"><u>Sign in</u></a>
-				</div>
-			</div>
-			<div class="col-sm-1" style="color: white">Dhiraj Gurnani</div>
-		</div>
-	</nav>
-
+<body ng-module="myApp,CustomerApp" ng-controller="Controller" ng-init="viewCart()">
+ <nav class="navbar navbar-default navbar-fixed-top" style="background-color:#484848; padding:10px">
+         <div class="row">
+         <div class="col-sm-10">
+            <div class="container-fluid" style="color:white" 
+		ng-controller="CustomerController">  <a href="" ng-click="homepage();"><img src="/images/bookshelf.jpg" alt="Amazon logo"> </a>
+          <span ng-show="<%=!user.name%>">
+            Already an TheBookShelf customer? <a href="#" style="color:white" ng-click="login();"><u>Sign in</u></a>
+            </span></div>
+         </div>
+         
+   <div class="dropdown col-sm-1" 
+		ng-controller="CustomerController" ng-show="<%=JSON.stringify(user.name)%>">
+  <button class="btn dropdown-toggle btn-success" type="button" data-toggle="dropdown"><%=user.name%>
+  <span class="caret"></span></button>
+  <ul class="dropdown-menu">
+    <li><a href="" ng-click=viewProfile()>My Profile</a></li>
+    <li><a href="" ng-click="viewOrderHistory()">View Order History</a></li>
+  <li><a href="" ng-click="LogOut()">Log Out</a></li>
+	</ul>
+</div>		
+<button type="button" class="btn btn-success" ng-click="go_to_cart()"  ng-controller="CustomerController"  ng-show="<%=JSON.stringify(user.name)%>">
+  <li class="nav-item"><a class="nav-link" href="#" 
+               style="color: white"><span class="glyphicon glyphicon-shopping-cart"></span> Cart</a></li>
+  </button>
+	
+</div>
+      </nav>
 
 	<br>
 	<br>
 	<br>
-	<div class="row">
-		<div class="col-sm-1">
-			<div class="dropdown" style="padding-left: 15px">
-				<button class="btn btn-primary dropdown-toggle" type="button"
-					data-toggle="dropdown" style="width: 130px">
-					Shop <span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu">
-					<li><a href="#"><strong>History</strong><br>It all
-							started here</a></li>
-					<br>
-					<li><a href="#"><strong>Romance</strong><br>All about
-							love</a></li>
-					<br>
-					<li><a href="#"><strong>Suspence</strong><br>Secrets
-							to be found</a></li>
-					<br>
-					<li><a href="#"><strong>Travel</strong><br>It could
-							be your guide</a></li>
-					<br>
-					<li><a href="#"><strong>Others</strong><br>All stuff</a></li>
-				</ul>
-			</div>
-		</div>
-		<div class="col-sm-6">
-
-
-
-			<div class="panel panel-default">
-				<div class="panel-heading">
-
-					<div class="dropdown" style="padding-left: 15px">
-						<button class="btn btn-default dropdown-toggle" type="button"
-							data-toggle="dropdown">
-							All <span class="caret"></span>
-						</button>
-						<ul class="dropdown-menu">
-							<li><a href="#">All</a></li>
-							<li><a href="#">Amazon.com items only</a></li>
-
-						</ul>
-						<input type="text" placeholder="Search Amazon Fresh"
-							style="width: 850px" style="style="background-color:#464646">
-
-						<button class="btn btn-default" placeholder="Search Amazon Fresh">go</button>
-					</div>
-
-				</div>
-			</div>
-
-		</div>
-		<div class="col-sm-5"></div>
-	</div>
-
-
-
-
-
-
-
 	<br>
 	<br>
 
@@ -163,15 +184,59 @@
 
 	<div class="row">
 		<div class="col-sm-1"></div>
-		<div class="col-sm-9">
-			<table class="table">
+		<div class="col-sm-10">
+		<div ng-show="message" class="alert alert-success"   ng-controller="CustomerController" >
+  <strong>Success!</strong><br> {{message}}
+  
+  <a href="" ng-click="homepage();">Continue Shopping?</a>
+</div>
+		
+		<div ng-show="place">
+		<p align="center"><b>Payment details</b></p>
+		<table class="table">
+					<tr>
+						<td style="border-top: none;">Customer Name</td>
+						<td style="border-top: none;">{{customer.first_name}}  &nbsp&nbsp {{customer.last_name}}</td>
+					</tr>
+					<tr>
+						<td style="border-top: none;">Card Number</td>
+						<td style="border-top: none;">{{customer.card_no}}</td>
+					</tr>
+					<tr>
+						<td style="border-top: none;">CVV</td>
+						<td style="border-top: none;">***</td>
+					</tr>
+					<tr>
+						<td style="border-top: none;">Expiry</td>
+						<td style="border-top: none;">{{customer.expire_date | date :  "dd.MM.y"}}  </td>
+					</tr>
+					<tr>
+						<td style="border-top: none;">Shipping Address</td>
+						<td style="border-top: none;">{{customer.address}}</td>
+					</tr>
+					<tr>
+						<td style="border-top: none;">Contact Number</td>
+						<td style="border-top: none;">{{customer.phone_no}}</td>
+					</tr>
+			</table>
+			<br>
+			<p align="center"><b>Order Details</b><br></p>
+		</div>
+		<div ng-show="status" class="alert alert-info">
+    <strong>{{status}}</strong> 
+  </div>
+		
+			<table class="table" ng-show="!order_placed&&!status">
+			
 				<thead>
 					<tr>
 						<th></th>
 						<th>Book Author</th>
 						<th>Book Name</th>
 						<th>Price</th>
+						<th> Status </th>
 						<th>Quantity</th>
+						
 					</tr>
 				</thead>
 				<tbody>
@@ -185,13 +250,16 @@
 						<td><br>
 						<br>{{user.value.book_cost}} $</td>
 						<td><br>
-						<br>
-						<input type="number" ng-model="quantity" id="{{user.value._rev}}"
-							value={{user.value.quantity}}
-							ng-click="changeQuantity(user.value)"></input></td>
+						<br>{{user.value.status}} </td>
+						
+						
+						<td><br><br>
+						
+						<input type="number" ng-model="quantity" value="{{user.value.quantity}}" id="{{user.value._rev}}"
+							ng-click="changeQuantity(user.value)" size="35" ></input></td>
 						<td><br>
 						<br>
-						<button ng-click="removeFromCart(user.value)">Remove</button>
+						<button ng-click="removeFromCart(user.value)">Remove</button></td>
 					</tr>
 				</tbody>
 			</table>
@@ -200,19 +268,49 @@
 		</div>
 		<div class="col-sm-2"></div>
 	</div>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-	<br>
-
+	<div ng-show="place" align="center">
+	<h1>Total Amount:{{total}}</h1>
 	</div>
+<br><br>
+	<div class=" row">
+	<div class="col-sm-5"></div>
+	<div class="col-sm-2">
+	<button type="button" class="btn btn-success btn-lg" ng-click=checkout(product_details) ng-show="proceed&&!status">Proceed to Checkout</button>
+	</div>
+	<div class="col-sm-5"></div>
+	</div>
+
+	<div class="row">
+	<div class="col-sm-4"></div>
+	<div class="col-sm-1">
+	<button type="button" class="btn btn-success btn-md" ng-click=confirm(product_details) ng-show="place">Confirm Order</button>
+	</div>
+	<div class="col-sm-2"></div>
+	<div class="col-sm-1">
+	<button type="button" class="btn btn-danger btn-md" ng-click=cancel() ng-show="place">Cancel Order</button>
+	</div>
+	<div class="col-sm-4"></div>
+	</div>
+
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
 
 	<div class="row">
 		<div class="panel-body"

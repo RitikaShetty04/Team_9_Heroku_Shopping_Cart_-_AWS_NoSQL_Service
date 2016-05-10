@@ -2,22 +2,35 @@
 <!DOCTYPE html>
 <html>
    <head>
-      <title>Amazon Fresh Login</title>
+      <title>TheBookShelf</title>
       <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
       <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
       <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
       <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+      <style>
+#panel {
+	background-color: #f2f2f2;
+	margin-top: 100px;
+	margin-bottom: 75px;
+	padding-left: 40px;
+	padding-bottom: 70px
+}
+</style>
+<script src="angularjs/book.js"></script>
+<script src="angularjs/customerController.js"></script>
+ <script src="angularjs/angular.ng-modules.js"></script>
+     
    </head>
    <body>
 		<nav class="navbar navbar-default navbar-fixed-top" style="background-color:#484848; padding:10px">
-			<div class="container-fluid">
-               <a href=""><img src="http://intertwingly.net/projects/AWDwR3/data/images/logo.png?1324774743" alt="Amazon logo"></a>
+			<div class="container-fluid" ng-module="CustomerApp"
+		ng-controller="CustomerController">
+               <a href="" ng-click ="homepage();"><img src="/images/bookshelf.jpg"></a>
 			</div>
 		</nav>
 	    <br/><br/>
-	    <h1><%=rows%> <%=msg%></h1>
 		<div class="col-sm-4"></div>
-		<div class="col-sm-3" style="text-align:left">
+		<div class="col-sm-4" style="text-align:left">
 			<form method="POST" action="/checklogin">
 				<h4><br/><br/><b>Sign In</b><br/><br/></h4>
 				E-mail or mobile number
@@ -29,13 +42,18 @@
 				<br/><br/>
 				<button type="submit" class="form-control" style="background-color:rgb(204, 255, 153); color:black">Sign In</button>
 			</form>
+			<center style="font: bold; color: red;"><%=msg%></center>
 			</br>
-			<p>New TheBookShelf.com customer? <a href=""><u>Create a new TheBookShelf account</u></a> </p>
+			<center>
+			<p>New TheBookShelf.com customer?
+			<br> <a ng-module="CustomerApp"
+		ng-controller="CustomerController" href="" ng-click="go_to_signup();"><u>Create a new TheBookShelf account</u></a> </p>
+			</center>
 			</br></br>
-			<center><small><a href="" style="color:#4d9900"><u>Conditions of Use</u></a>  <a href="" style="color:#4d9900"><u>Privacy Notice</u></a></small></center>
-			<p><small>&copy 1996-2016, TheBookShelf.com, Inc. or its affiliates</small></p>
+			<center><small><a href="" style="color:#4d9900"><u>Conditions of Use</u></a>  <a href="" style="color:#4d9900"><u>Privacy Notice</u></a></small>
+			<p><small>&copy 1996-2016, TheBookShelf.com, Inc. or its affiliates</small></p></center>
 			<br/><br/><br/><br/>
 		</div>
-		<div class="col-sm-5"></div>
+
    </body>
 </html>

@@ -1,5 +1,9 @@
 var http = require ('http');
-var nano = require('nano')('http://54.173.26.121:5984/');
+//<<<<<<< Updated upstream
+var nano = require('nano')('http://Team-9-Load-Balancer-423702890.us-east-1.elb.amazonaws.com:5984/');
+//=======
+//var nano = require('nano')('http://team-9-load-balancer-423702890.us-east-1.elb.amazonaws.com:5984/');
+//>>>>>>> Stashed changes
 //var nano = require('nano')('http://localhost:5984/');
 var books=nano.db.use('books');
 /*books.insert(
@@ -73,8 +77,8 @@ exports.search_book = function(req,res)
 {
 	
 	
-	var searchValue=req.param('searchValue');
-	var searchBy=req.param('searchBy');
+	var searchValue=req.params.searchValue;
+	var searchBy=req.params.searchBy;
 	var view_name;
 	var view_design;
 	console.log("inside search book"+searchValue+' '+searchBy);
@@ -109,12 +113,14 @@ exports.search_book = function(req,res)
 		        }
 		    	else{
 		    		console.log("No rows returned");
+		    		res.send({"status_code":400});
 		    	}
 		    	
 		    }
 		    else
 		    	{
 		    	console.log("Error "+err);
+		    	res.send(err);
 		    	
 		    	}
 		});
@@ -158,11 +164,12 @@ exports.home_search_book = function(req,res)
 		    		
 		    			
 		    			console.log(rows[0]);
-		    		
-		    		res.render('search_book',{'rows':rows,'msg':"hello"});
+		    		console.log("Logged in?: "+req.session.email);
+		    		res.render('search_book',{'rows':rows,'user':req.session,'searchValue':searchValue,'searchBy':searchBy});
 		        }
 		    	else{
 		    		console.log("No rows returned");
+		    		res.render('search_book',{'rows':'','user':req.session,'searchValue':searchValue,'searchBy':searchBy});
 		    	}
 		    	
 		    }

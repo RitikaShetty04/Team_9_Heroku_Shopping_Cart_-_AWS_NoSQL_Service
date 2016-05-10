@@ -7,13 +7,16 @@
   },
   "dependencies": {
     "angular": "^1.5.5",
+    "body-parser": "^1.15.0",
     "connect-mongo": "^1.1.0",
+    "connect-redis": "^3.0.2",
     "ejs": "*",
     "express": "^3.2.6",
     "express-session": "^1.13.0",
     "mongodb": "^2.1.16",
     "nano": "^6.2.0",
     "password-hash": "^1.2.2",
+    "redis": "^0.12.1",
     "router": "^1.1.4"
   }
 }

@@ -29,6 +29,8 @@ Week 4 :
 4. Created Nodejs and Angularjs API's for removeFromCart() 
 5. Replicated our database and tested it for partition tolerance by changing inbound traffic of one instance. 
 6. Tested end-to end working of our entire application (i.e. all api's) on heroku and aws.
+7. I created a load balancer and kept all the three instances I had created behind the load balancer. Then I kept the link of load balancer in our application and tested it on heroku. Our application works proper end- to - end. 
+
  
 
 

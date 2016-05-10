@@ -1,15 +1,16 @@
 var http = require ('http');
-var nano = require('nano')('http://54.210.203.140:5984');
+var nano=require('nano')('http://Team-9-Load-Balancer-423702890.us-east-1.elb.amazonaws.com:5984/');
+//var nano = require('nano')('http://team-9-load-balancer-423702890.us-east-1.elb.amazonaws.com:5984/');
 
 exports.viewProfile = function(req,res){
 	console.log("viewProfile Called");
-	res.render("customerProfile");
+	res.render("customerProfile",{'rows':""});
 };
 
 exports.getProfileDetails = function(req,res){
 	console.log("getProfileDetails called");
 	var test = nano.use('test');
-	var email=req.params.email;
+	var email=req.session.email;
 	
 	console.log("Email:" +email);
 	 test.view('login', 'by_email_address',{'key': email, 'include_docs': true}, function(err, body){
@@ -71,7 +72,7 @@ exports.editProfile = function(req,res){
 	    		
 	    		test.insert({"first_name":first_name,"last_name":last_name,"address":address,"zipcode":zipcode,
 	    			"email":email,"password":password,"phone_no":phone_no,"card_no":card_no,"cvv":cvv,
-	    			"expiry":expiry,_rev:rev},id, function(err, body, header) {
+	    			"expire_date":expiry,_rev:rev},id, function(err, body, header) {
 	    			      if (err) {
 	    			          console.log('[test.insert] ', err.message);
 	    			          return;
@@ -103,11 +104,15 @@ exports.editProfile = function(req,res){
 	
 };
 
+exports.renderOrderPage = function(req,res){
+	console.log("renderOrderPage Called");
+	res.render("orderHistory",{'rows':"","user":req.session});
+};
 
-exports.viewOrderHistory = function(req,res){
-	console.log("viewOrderHistory called");
+exports.getOrderDetails = function(req,res){
+	console.log("getOrderDetails called");
 	var test = nano.use('order');
-	var id=req.params.customerID;
+	var id=req.session.customer_id;
 	console.log("ID: "+id);
 	
 	 test.view('order', 'by_customer_id',{'key': id, 'include_docs': false}, function(err, body){
@@ -117,15 +122,13 @@ exports.viewOrderHistory = function(req,res){
 		    	if(typeof body.rows[0] !== "undefined")
 		        {
 		    		console.log("JS output: " +body.rows);
-		    		
-		    			res.status(200).json({
-		    				message : "success",
-		    				result:	body.rows
-		    			});
+		    		res.send({"status":200,"message":"","result":body.rows});
+		    			
 		        }
 		    	else
 		    		{
 		    		//send proper message if no orders present
+		    		res.send({"status":400,"message":"You haven't ordered anything from TheBookShelf yet"});
 		    		console.log("Login to continue");
 		    		}
 		    }

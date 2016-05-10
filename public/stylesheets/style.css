@@ -12,3 +12,7 @@ select{
 #myinput{
 	width:150px;
 }
+#searchdisplay{
+	 font-family: "Times New Roman", Times, serif;
+	color: #333;
+}

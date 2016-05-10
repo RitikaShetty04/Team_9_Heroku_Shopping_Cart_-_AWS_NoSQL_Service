@@ -2,7 +2,8 @@
  * New node file
  */
 var http = require ('http');
-var nano = require('nano')('http://54.84.95.87:5984/');
+var nano=require('nano')('http://Team-9-Load-Balancer-423702890.us-east-1.elb.amazonaws.com:5984/');
+//var nano = require('nano')('http://team-9-load-balancer-423702890.us-east-1.elb.amazonaws.com:5984/');
 
 exports.checkLogin = function(req,res){
 	// These two variables come from the form on
@@ -30,19 +31,25 @@ exports.checkLogin = function(req,res){
 		    			{
 		    			console.log("inside3");
 		    			//res.send("Login Successful");
-		    			console.log("Login successful " +doc_email +" "+password);
-		    			res.render('viewCart');
+		    			req.session.email=doc_email;
+		    			req.session.name=body.rows[0].value.first_name+" "+body.rows[0].value.last_name;
+		    			req.session.customer_id=body.rows[0].value._id;
+		    			console.log("Login successful " +doc_email +" "+password +" id " +req.session.customer_id);
+		    			
+		    			res.render('bookshelf',{'user':req.session});
 		    			}
 		    		else
 		    			{
 		    			//.send("Incorrect password");
 		    			console.log("Incorrect password");
+		    			res.render('login',{'msg':"Incorrect Password"});
 		    			}
 		        }
 		    	else
 		    		{
 		    		//res.send("Login failed, User doesn't exist");
 		    		console.log("Login failed, User doesn't exist");
+		    		res.render('login',{'msg':"Login failed, User doesn't exist"});
 		    		}
 		    }
 		    else
@@ -71,7 +78,13 @@ exports.redirectToHomepage = function(req,res)
 //Logout the user - invalidate the session
 exports.logout = function(req,res)
 {
+	console.log("in logout");
 	req.session.destroy();
 	res.redirect('/');
 };
 
+exports.login = function(req,res)
+{
+	console.log("Render login page");
+	res.render("login",{'msg':""});
+};

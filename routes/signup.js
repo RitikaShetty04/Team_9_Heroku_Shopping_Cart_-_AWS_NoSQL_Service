@@ -1,5 +1,6 @@
 var http = require ('http');
-var nano = require('nano')('http://54.84.95.87:5984/');
+var nano=require('nano')('http://Team-9-Load-Balancer-423702890.us-east-1.elb.amazonaws.com:5984/');
+//var nano = require('nano')('http://team-9-load-balancer-423702890.us-east-1.elb.amazonaws.com:5984/');
 var id=244;
 exports.signup=function(req,res)
 {
@@ -16,15 +17,31 @@ exports.signup=function(req,res)
 	var customerid=id++;
 	
 	var test=nano.db.use('test');
+	test.view('login', 'by_email_address',{'key': email , 'include_docs': true}, function(err, body){
+		  console.log("inside"+body.rows[0]);  
+		  if(!err){
+			  if(typeof body.rows[0] !== "undefined")
+				  {
+				  	res.send({"status":"User with that email id already exist"});
+				  }else
+					  {
+					  test.insert({'first_name':firstname,'last_name':lastname,'email':email,'password':password,'address':address,'card_no':card_no,'cvv':cvv,'expire_date':expiredate},'',function(err,body,header){
+							if (err) {
+								console.log('[test.insert] ', err.message);
+								res.send({"status":"error"});
+							}else{
+							console.log('you have inserted the Record.');
+							console.log(body);
+							res.send({"status":"Success"});
+					  }
+						});
+					  }
+		  }else
+			  {
+			  console.log("error"+err);
+			  }
+		  });
 	
-	test.insert({'first_name':firstname,'last_name':lastname,'email':email,'password':password,'address':address,'card_no':card_no,'cvv':cvv,'expire_date':expiredate,'customer_id':customerid},'S-002',function(err,body,header){
-		if (err) {
-			console.log('[test.insert] ', err.message);
-			res.render("login");
-		}
-		console.log('you have inserted the Record.');
-		console.log(body);
-	});
 
 	
 	
